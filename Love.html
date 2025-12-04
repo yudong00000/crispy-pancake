@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>极客运维 - 浪漫爱心动画</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "微软雅黑", system-ui, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 45%, #fff4f7 0%, #c9eaff 100%);
+            color: #333;
+            transition: background 0.5s ease;
+        }
+        
+        .dark-mode {
+            background: radial-gradient(circle at 50% 45%, #1a1a2e 0%, #16213e 100%);
+            color: #f0f0f0;
+        }
+        
+        .stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .msg {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 14px;
+            text-shadow: 0 2px 6px rgba(0,0,0,.28);
+            opacity: 0;
+            transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(.75) rotate(var(--rot));
+            animation: flight var(--dur) cubic-bezier(.25,.7,.3,1) var(--delay) both;
+            box-shadow: 0 4px 12px rgba(0,0,0,.22);
+            background: var(--bg);
+            z-index: 1;
+            will-change: transform, opacity;
+        }
+        
+        .msg.shape-1 { border-radius: 30px 8px 30px 8px; }
+        .msg.shape-2 { border-radius: 8px 30px 8px 30px; }
+        .msg.shape-3 { border-radius: 30% 8px 30% 8px; }
+        
+        .msg::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(255,255,255,.3);
+            border-radius: 50%;
+            top: -5px;
+            right: -5px;
+            z-index: -1;
+        }
+        
+        .msg::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: rgba(255,255,255,.3);
+            border-radius: 50%;
+            bottom: -3px;
+            left: -3px;
+            z-index: -1;
+        }
+        
+        @keyframes flight {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) translate(var(--dx), var(--dy)) scale(.75) rotate(var(--rot));
+            }
+            20% { opacity: 1; }
+            50% {
+                transform: translate(-50%, -50%) translate(calc(var(--dx)*.3), calc(var(--dy)*.3)) scale(1.05);
+            }
+            80% {
+                transform: translate(-50%, -50%) translate(calc(var(--dx)*1.1), calc(var(--dy)*1.1)) scale(.98) rotate(var(--rot));
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) translate(var(--heart-x), var(--heart-y)) scale(1) rotate(var(--heart-rot));
+            }
+        }
+        
+        .msg.heart-mode { 
+            color: transparent; 
+            text-shadow: none; 
+        }
+        
+        .msg.locked {
+            animation: none;
+            transform: translate(-50%, -50%) translate(var(--heart-x), var(--heart-y)) scale(1) rotate(var(--heart-rot));
+            opacity: 1;
+        }
+        
+        .msg.locked.pulse {
+            animation: pulse 1.8s ease-in-out 1;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) translate(var(--heart-x), var(--heart-y)) scale(1); }
+            50% { transform: translate(-50%, -50%) translate(var(--heart-x), var(--heart-y)) scale(1.05); }
+        }
+        
+        .msg.burst {
+            animation: burst 1.2s cubic-bezier(.17,.6,.2,1) forwards;
+        }
+        
+        @keyframes burst {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) translate(var(--heart-x), var(--heart-y)) scale(1);
+            }
+            40% {
+                opacity: 0.8;
+                transform: translate(-50%, -50%) translate(calc(var(--heart-x) + var(--bx)*0.5), calc(var(--heart-y) + var(--by)*0.5)) scale(1.2) rotate(var(--rot));
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) translate(calc(var(--heart-x) + var(--bx)), calc(var(--heart-y) + var(--by))) scale(1.4) rotate(var(--rot));
+            }
+        }
+        
+        .center-title {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 800;
+            letter-spacing: .1em;
+            font-size: 24px;
+            color: rgba(255,105,180,.6);
+            text-shadow: 0 2px 8px rgba(255,105,180,.15);
+            opacity: 0;
+            pointer-events: none;
+            animation: titleIn 1s ease 0.6s both;
+            text-align: center;
+            z-index: 10;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .dark-mode .center-title {
+            color: rgba(255,182,193,.8);
+        }
+        
+        @keyframes titleIn {
+            from { opacity: 0; transform: translate(-50%, -55%); }
+            to { opacity: .95; transform: translate(-50%, -50%); }
+        }
+        
+        .center-title.zoom {
+            font-size: 36px;
+            opacity: 1;
+            text-shadow: 0 0 15px rgba(255,105,180,0.5);
+            transform: translate(-50%, -50%) scale(1.3);
+            z-index: 100;
+            animation: glowPulse 1.5s ease-in-out infinite alternate;
+        }
+        
+        .dark-mode .center-title.zoom {
+            text-shadow: 0 0 15px rgba(255,182,193,0.7);
+        }
+        
+        @keyframes glowPulse {
+            from {
+                text-shadow: 0 0 6px rgba(255,105,180,0.4);
+            }
+            to {
+                text-shadow: 0 0 10px rgba(255,105,180,0.6), 0 0 15px rgba(255,105,180,0.4);
+            }
+        }
+        
+        .controls {
+            position: absolute;
+            right: 12px;
+            bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 20;
+        }
+        
+        .replay, .mode-toggle, .burst-btn {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255,255,255,.5);
+            backdrop-filter: blur(6px);
+            color: #222;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 3px 12px rgba(0,0,0,.22);
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+        
+        .dark-mode .replay, .dark-mode .mode-toggle, .dark-mode .burst-btn {
+            background: rgba(0,0,0,.3);
+            color: #f0f0f0;
+        }
+        
+        .replay:hover, .mode-toggle:hover, .burst-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(0,0,0,.3);
+        }
+        
+        .burst-btn {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(15px);
+            transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+        }
+        
+        .burst-btn.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .music-prompt {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            font-size: 16px;
+            color: #333;
+            z-index: 1000;
+            transition: opacity 0.3s ease;
+            text-align: center;
+            max-width: 80%;
+            backdrop-filter: blur(8px);
+        }
+        
+        .dark-mode .music-prompt {
+            background: rgba(0, 0, 0, 0.7);
+            color: #f0f0f0;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                right: 8px;
+                bottom: 8px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            
+            .replay, .mode-toggle, .burst-btn {
+                padding: 8px 10px;
+                font-size: 11px;
+            }
+            
+            .center-title {
+                font-size: 20px;
+            }
+            
+            .center-title.zoom {
+                font-size: 28px;
+            }
+            
+            .msg {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+        
+        .mode-toggle::before {
+            content: "☀️";
+            margin-right: 5px;
+        }
+        
+        .dark-mode .mode-toggle::before {
+            content: "🌙";
+        }
+    </style>
+</head>
+<body>
+    <!-- 背景音乐 -->
+    <audio id="background-music" loop playsinline>
+        您的浏览器不支持音频播放
+    </audio>
+    
+    <!-- 音乐播放提示 -->
+    <div class="music-prompt" id="music-prompt">
+        点击播放音乐
+    </div>
+    
+    <div class="stage" id="stage">
+        <div class="center-title" id="title">献给特别的你 ♥</div>
+    </div>
+    
+    <div class="controls">
+        <button class="mode-toggle" id="mode-toggle">暗黑模式</button>
+        <button class="burst-btn" id="burst-btn">绽放</button>
+        <button class="replay" id="replay">重放</button>
+    </div>
+
+    <script>
+        // 替换所有文字词语
+        const tips = [
+            '春风十里不如你', '你是我眼中的星辰', '心有灵犀一点通', '愿得一人心', '白首不相离',
+            '你是我最美的风景', '情深似海', '爱意如潮', '心心相印', '情比金坚',
+            '你是我心中的诗', '爱如初见', '执子之手', '与子偕老', '一生一世一双人',
+            '你是我梦中的光', '情深意长', '爱意绵绵', '心心念念', '情有独钟',
+            '你是我生命的色彩', '爱如潮水', '情意绵绵', '心心相惜', '情深似海',
+            '你是我心中的歌', '爱如烈火', '情意浓浓', '心心相连', '情深意重',
+            '你是我灵魂的归宿', '爱如春风', '情意深深', '心心相印', '情深似海',
+            '你是我永恒的守候', '爱如阳光', '情意绵绵', '心心相惜', '情深意长',
+            '你是我最美的遇见', '爱如细雨', '情意浓浓', '心心相连', '情深似海',
+            '你是我心中的宝藏', '爱如繁星', '情意深深', '心心相印', '情深意重'
+        ];
+
+        const stage = document.getElementById('stage');
+        const replay = document.getElementById('replay');
+        const title = document.getElementById('title');
+        const music = document.getElementById('background-music');
+        const musicPrompt = document.getElementById('music-prompt');
+        const modeToggle = document.getElementById('mode-toggle');
+        const burstBtn = document.getElementById('burst-btn');
+
+        // 使用可靠的音频源
+        music.src = 'https://lf26-music-east.douyinstatic.com/obj/ies-music-hj/7495920705440140091.mp3';
+        
+        // 预加载音频
+        music.load();
+
+        // 暗黑模式切换
+        function setupDarkMode() {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (prefersDark) {
+                document.body.classList.add('dark-mode');
+                modeToggle.textContent = '明亮模式';
+            }
+            
+            modeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-mode');
+                if (document.body.classList.contains('dark-mode')) {
+                    modeToggle.textContent = '明亮模式';
+                } else {
+                    modeToggle.textContent = '暗黑模式';
+                }
+            });
+        }
+
+        // 处理音乐播放
+        function setupMusic() {
+            let musicStarted = false;
+            
+            function tryPlayMusic() {
+                if (musicStarted) return;
+                
+                music.play().then(() => {
+                    musicStarted = true;
+                    musicPrompt.style.opacity = '0';
+                    setTimeout(() => {
+                        musicPrompt.style.display = 'none';
+                    }, 500);
+                }).catch(error => {
+                    console.log('播放失败，需要用户交互:', error);
+                    // 显示提示，让用户知道需要交互
+                    musicPrompt.textContent = '请点击页面任意位置开始播放音乐';
+                    musicPrompt.style.opacity = '1';
+                });
+            }
+            
+            // 监听用户交互来触发播放
+            document.addEventListener('click', tryPlayMusic);
+            document.addEventListener('touchstart', tryPlayMusic);
+            
+            // 重放按钮也触发播放
+            replay.addEventListener('click', () => {
+                tryPlayMusic();
+            });
+            
+            // 添加音频加载错误处理
+            music.addEventListener('error', () => {
+                console.error('音频加载失败');
+                musicPrompt.textContent = '音乐加载失败，但仍可欣赏动画效果';
+                musicPrompt.style.opacity = '1';
+            });
+        }
+
+        // 随机生成出场位置
+        function getRandomDirection() {
+            const edge = Math.floor(Math.random() * 4);
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+            
+            let dx, dy;
+            
+            switch(edge) {
+                case 0:
+                    dx = (Math.random() * screenWidth - screenWidth/2) * 1.2;
+                    dy = -screenHeight * 0.8;
+                    break;
+                case 1:
+                    dx = screenWidth * 0.8;
+                    dy = (Math.random() * screenHeight - screenHeight/2) * 1.2;
+                    break;
+                case 2:
+                    dx = (Math.random() * screenWidth - screenWidth/2) * 1.2;
+                    dy = screenHeight * 0.8;
+                    break;
+                case 3:
+                    dx = -screenWidth * 0.8;
+                    dy = (Math.random() * screenHeight - screenHeight/2) * 1.2;
+                    break;
+            }
+            
+            return {dx: `${dx}px`, dy: `${dy}px`};
+        }
+
+        function rand(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+        
+        function randomGradient() {
+            const arr = [
+                ['#ff758c', '#ff7eb3'], ['#a18cd1', '#fbc2eb'],
+                ['#f6d365', '#fda085'], ['#84fab0', '#8fd3f4'],
+                ['#f093fb', '#f5576c'], ['#4facfe', '#00f2fe'],
+                ['#43e97b', '#38f9d7'], ['#fa709a', '#fee140'],
+                ['#30cfd0', '#330867'], ['#5ee7df', '#b490ca']
+            ];
+            const [c1, c2] = arr[Math.floor(Math.random() * arr.length)];
+            return `linear-gradient(135deg, ${c1}, ${c2})`;
+        }
+
+        // 爱心形状函数
+        function heartXY(t) {
+            const s = 12;
+            const x = s * (16 * Math.sin(t)**3);
+            const y = -s * (13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t) - 0.2);
+            return {x: x+'px', y: y+'px'};
+        }
+
+        function createMsg(i, total) {
+            const el = document.createElement('div');
+            el.className = 'msg';
+            
+            const shapeClass = `shape-${Math.floor(Math.random() * 3) + 1}`;
+            el.classList.add(shapeClass);
+
+            const d = getRandomDirection();
+            el.style.setProperty('--dx', d.dx);
+            el.style.setProperty('--dy', d.dy);
+            el.style.setProperty('--rot', rand(-40,40)+'deg');
+            el.style.setProperty('--dur', (rand(5,6.5))+'s');
+            el.style.setProperty('--delay', (i*0.15 + rand(0,0.25))+'s');
+            el.style.setProperty('--bg', randomGradient());
+
+            const t = (i / total) * Math.PI * 2;
+            const {x, y} = heartXY(t);
+            el.style.setProperty('--heart-x', x);
+            el.style.setProperty('--heart-y', y);
+            el.style.setProperty('--heart-rot', rand(-12,12)+'deg');
+
+            const span = document.createElement('span');
+            span.className = 'text';
+            span.textContent = tips[Math.floor(Math.random()*tips.length)];
+            el.appendChild(span);
+
+            const delay = parseFloat(el.style.getPropertyValue('--delay'));
+            const dur = parseFloat(el.style.getPropertyValue('--dur'));
+            const switchAt = delay + dur * 0.9;
+            const switchTimer = setTimeout(() => { 
+                el.classList.add('heart-mode'); 
+            }, switchAt*1000);
+
+            el.addEventListener('animationend', () => {
+                clearTimeout(switchTimer);
+                el.classList.add('heart-mode', 'locked', 'pulse');
+                
+                setTimeout(() => {
+                    el.classList.remove('pulse');
+                }, 1800);
+                
+                checkAllLocked();
+            }, {once: true});
+
+            stage.appendChild(el);
+            
+            return el;
+        }
+
+        // 检查所有消息框是否都已锁定
+        function checkAllLocked() {
+            const messages = stage.querySelectorAll('.msg');
+            const lockedMessages = stage.querySelectorAll('.msg.locked');
+            
+            if (messages.length > 0 && messages.length === lockedMessages.length) {
+                showBurstButton();
+            }
+        }
+
+        // 显示绽放按钮
+        function showBurstButton() {
+            burstBtn.classList.add('visible');
+        }
+
+        // 隐藏绽放按钮
+        function hideBurstButton() {
+            burstBtn.classList.remove('visible');
+        }
+
+        // 绽放效果
+        function finalBurst() {
+            hideBurstButton();
+            
+            title.classList.add('zoom');
+            
+            const messages = Array.from(stage.querySelectorAll('.msg.locked'));
+            const batchSize = 20;
+            let currentBatch = 0;
+            
+            function processBatch() {
+                const start = currentBatch * batchSize;
+                const end = Math.min(start + batchSize, messages.length);
+                
+                for (let i = start; i < end; i++) {
+                    const el = messages[i];
+                    el.classList.remove('pulse');
+                    
+                    const spread = rand(200, 350);
+                    const ang = rand(0, Math.PI*2);
+                    const bx = Math.cos(ang)*spread;
+                    const by = Math.sin(ang)*spread;
+                    el.style.setProperty('--bx', bx+'px');
+                    el.style.setProperty('--by', by+'px');
+                    el.style.setProperty('--rot', rand(-120,120)+'deg');
+                    
+                    const jitter = rand(0, 300);
+                    setTimeout(() => {
+                        el.classList.add('burst');
+                        el.addEventListener('animationend', () => el.remove(), {once: true});
+                    }, jitter);
+                }
+                
+                currentBatch++;
+                
+                if (currentBatch * batchSize < messages.length) {
+                    setTimeout(processBatch, 50);
+                }
+            }
+            
+            setTimeout(processBatch, 100);
+        }
+
+        function play() {
+            hideBurstButton();
+            
+            title.classList.remove('zoom');
+            
+            stage.querySelectorAll('.msg').forEach(n => n.remove());
+            title.style.opacity = 0;
+
+            // 文字块数量
+            const TOTAL = 180;
+            for(let i = 0; i < TOTAL; i++) {
+                createMsg(i, TOTAL);
+            }
+
+            setTimeout(() => { 
+                title.style.opacity = 1; 
+            }, 1000);
+        }
+
+        // 初始化
+        setupDarkMode();
+        setupMusic();
+        play();
+
+        // 按钮事件
+        replay.onclick = play;
+        burstBtn.onclick = finalBurst;
+
+        // 监听窗口大小变化
+        window.addEventListener('resize', () => {
+            if (stage.querySelectorAll('.msg.locked').length > 0) {
+                showBurstButton();
+            }
+        });
+    </script>
+</body>
+</html>
